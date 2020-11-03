@@ -1,1 +1,5 @@
 .idea
+src/*.egg-info
+src/starwars/__pycache__/*
+*.pyc
+*.pyo
