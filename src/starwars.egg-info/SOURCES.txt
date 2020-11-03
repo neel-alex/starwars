@@ -1,0 +1,6 @@
+setup.py
+src/starwars/__init__.py
+src/starwars.egg-info/PKG-INFO
+src/starwars.egg-info/SOURCES.txt
+src/starwars.egg-info/dependency_links.txt
+src/starwars.egg-info/top_level.txt
