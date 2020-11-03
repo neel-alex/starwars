@@ -4,16 +4,23 @@ import random
 from starwars.dice_faces import (BOOST, PROFICIENCY, ABILITY,
                                  SETBACK, DIFFICULTY, CHALLENGE,
                                  dice_data,)
+from starwars.types import (DiceTuple, DiceList, DiceDict,
+                            DiceTupleOrNone, DiceListOrNone)
 
 
 class Dice(ABC):
+    faces: DiceList
+    adjacency: DiceDict
+    _result: DiceTupleOrNone
+    _adjacent_faces = DiceListOrNone
+
     @abstractmethod
-    def __init__(self, dice_ref=None):
-        self.adjacency, self.faces = dice_data(dice_ref)
+    def __init__(self, dice_ref: str = None):
+        self.faces, self.adjacency = dice_data(dice_ref)
         self._result = None
         self._adjacent_faces = None
 
-    def roll(self):
+    def roll(self) -> DiceTuple:
         self._result = random.choice(self.faces)
 
         possible_faces = [self.adjacency[key] for key in self.adjacency if key[1] == self._result]
@@ -22,12 +29,15 @@ class Dice(ABC):
         return self._result
 
     @property
-    def result(self):
+    def result(self) -> DiceTupleOrNone:
         return self._result
 
     @property
-    def adjacent_faces(self):
+    def adjacent_faces(self) -> DiceListOrNone:
         return self._adjacent_faces
+
+    def __str__(self):
+        return f"{type(self).__name__}: {'Unrolled' if self._result is None else self._result}"
 
 
 class Boost(Dice):

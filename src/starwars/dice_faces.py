@@ -1,5 +1,7 @@
 import ast
+from typing import Tuple
 
+from starwars.types import DiceList, DiceDict
 
 BOOST = """
 0: [A, 2A, S, SA]
@@ -76,58 +78,86 @@ positive_dice = (BOOST, ABILITY, PROFICIENCY)
 negative_dice = (SETBACK, DIFFICULTY, CHALLENGE)
 
 
-def positive_dice_parse(dice):
-    dice_string = dice.replace("0", "(0, 0, 0, 0)")\
-                      .replace("T", "(1, 0, 1, 0)")\
-                      .replace("2A", "(0, 2, 0, 0)")\
-                      .replace("SA", "(1, 1, 0, 0)")\
-                      .replace("2S", "(2, 0, 0, 0)")\
-                      .replace("S", "(1, 0, 0, 0)")\
-                      .replace("A", "(0, 1, 0, 0)")
-    lines = [line for line in dice_string.split("\n") if line != '']
-    for i, line in enumerate(lines):
-        face, edges = line.split(":")
-        face = f"({i}, {face})"
-        lines[i] = ":".join((face, edges))
-    dice_string = ",\n".join(lines)
-    return ast.literal_eval("{" + dice_string + "}")
-
-
-def negative_dice_parse(dice):
-    dice_string = dice.replace("0", "(0, 0, 0, 0)")\
-                      .replace("D", "(-1, 0, 0, 1)")\
-                      .replace("2T", "(0, -2, 0, 0)")\
-                      .replace("FT", "(-1, -1, 0, 0)")\
-                      .replace("2F", "(-2, 0, 0, 0)")\
-                      .replace("F", "(-1, 0, 0, 0)")\
-                      .replace("T", "(0, -1, 0, 0)")
-    lines = [line for line in dice_string.split("\n") if line != '']
-    for i, line in enumerate(lines):
-        face, edges = line.split(":")
-        face = f"({i}, {face})"
-        lines[i] = ":".join((face, edges))
-    dice_string = ",\n".join(lines)
-    return ast.literal_eval("{" + dice_string + "}")
-
-
-def get_faces(dice_dict):
+def positive_dice_parse(dice: str) -> str:
     """
-    :param dice_dict: dict output from ..._parse_dice
-    :return: list of tuples
+    :param dice: Formatted string, where each line is blank or matches
+                    t: [(t, )*t]
+                    t = (0|T|2A|SA|2S|S|A)
+                        (note: T stands for Triumph here)
+    :return: Formatted string matching above, except tokens are replaced
+                    with their corresponding values in the 4-tuple system,
+                    (successes, advantages, triumphs, despairs)
+    """
+    return dice.replace("0", "(0, 0, 0, 0)")\
+               .replace("T", "(1, 0, 1, 0)")\
+               .replace("2A", "(0, 2, 0, 0)")\
+               .replace("SA", "(1, 1, 0, 0)")\
+               .replace("2S", "(2, 0, 0, 0)")\
+               .replace("S", "(1, 0, 0, 0)")\
+               .replace("A", "(0, 1, 0, 0)")
+
+
+def negative_dice_parse(dice: str) -> str:
+    """
+    :param dice: Formatted string, where each line is blank or matches
+                    t: [(t, )*t]
+                    t = (0|D|2T|FT|2F|F|T)
+                        (note: T stands for Threat here)
+    :return: Formatted string matching above, except tokens are replaced
+                    with their corresponding values in the 4-tuple system,
+                    (successes, advantages, triumphs, despairs)
+    """
+    return dice.replace("0", "(0, 0, 0, 0)") \
+               .replace("D", "(-1, 0, 0, 1)") \
+               .replace("2T", "(0, -2, 0, 0)") \
+               .replace("FT", "(-1, -1, 0, 0)") \
+               .replace("2F", "(-2, 0, 0, 0)") \
+               .replace("F", "(-1, 0, 0, 0)") \
+               .replace("T", "(0, -1, 0, 0)")
+
+
+def dice_str_to_dict(dice_string: str) -> DiceDict:
+    """
+    :param dice_string: output of (positive|negative)_dice_parse
+    :return: (dict) dict, where keys are 2-tuples where the first entry is an int
+                        and the second is a 4-tuple, and the values are lists of
+                        4-tuples.
+    """
+    lines = [line for line in dice_string.split("\n") if line != '']
+    for i, line in enumerate(lines):
+        face, edges = line.split(":")
+        face = f"({i}, {face})"
+        lines[i] = ":".join((face, edges))
+    dice_string = ",\n".join(lines)
+    return ast.literal_eval("{" + dice_string + "}")
+
+
+def get_faces(dice_dict: DiceDict) -> DiceList:
+    """
+    :param dice_dict: Output from dice_str_to_dict
+    :return: The second entry of each key in the dict as a list. List of 4-tuples.
     """
     return [pair[1] for pair in dice_dict.keys()]
 
 
-def dice_data(dice_string):
+def dice_data(dice_string: str) -> Tuple[DiceList, DiceDict]:
+    """
+    Given a dice string (such as the above 4), parse into faces and the adjacency dictionary.
+    :param dice_string: Formatted string, where each line is blank or matches
+                    t: [(t, )*t]
+                    t = (0|T|2A|SA|2S|S|A)
+    :return: faces, adjacency dict
+    """
     if dice_string in positive_dice:
-        dice_dict = positive_dice_parse(dice_string)
+        processed_string = positive_dice_parse(dice_string)
     elif dice_string in negative_dice:
-        dice_dict = negative_dice_parse(dice_string)
+        processed_string = negative_dice_parse(dice_string)
     else:
         raise ValueError(f"Cannot find dice string: {dice_string}\n" +
                          "Is it a valid dice code?\n" +
                          "Register it in dice_faces.py under positive or negative dice.")
-    return dice_dict, get_faces(dice_dict)
+    dice_dict = dice_str_to_dict(processed_string)
+    return get_faces(dice_dict), dice_dict
 
 
 def main():
