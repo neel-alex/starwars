@@ -1,18 +1,18 @@
 from abc import ABC, abstractmethod
+from typing import List
 import random
 
 from starwars.dice_faces import (BOOST, PROFICIENCY, ABILITY,
-                                 SETBACK, DIFFICULTY, CHALLENGE,
-                                 dice_data,)
-from starwars.types import (DiceTuple, DiceList, DiceDict,
-                            DiceTupleOrNone, DiceListOrNone)
+                                 SETBACK, DIFFICULTY, CHALLENGE)
+from starwars.dice_faces import dice_data
+import starwars.types as types
 
 
 class Dice(ABC):
-    faces: DiceList
-    adjacency: DiceDict
-    _result: DiceTupleOrNone
-    _adjacent_faces = DiceListOrNone
+    faces: types.DiceList
+    adjacency: types.DiceDict
+    _result: types.DiceTupleOrNone
+    _adjacent_faces = types.DiceListOrNone
 
     @abstractmethod
     def __init__(self, dice_ref: str = None):
@@ -20,7 +20,7 @@ class Dice(ABC):
         self._result = None
         self._adjacent_faces = None
 
-    def roll(self) -> DiceTuple:
+    def roll(self) -> types.DiceTuple:
         self._result = random.choice(self.faces)
 
         possible_faces = [self.adjacency[key] for key in self.adjacency if key[1] == self._result]
@@ -29,11 +29,11 @@ class Dice(ABC):
         return self._result
 
     @property
-    def result(self) -> DiceTupleOrNone:
+    def result(self) -> types.DiceTupleOrNone:
         return self._result
 
     @property
-    def adjacent_faces(self) -> DiceListOrNone:
+    def adjacent_faces(self) -> types.DiceListOrNone:
         return self._adjacent_faces
 
     def __str__(self):
@@ -68,3 +68,22 @@ class Difficulty(Dice):
 class Challenge(Dice):
     def __init__(self):
         super().__init__(dice_ref=CHALLENGE)
+
+
+def string_to_dice_list(string: str) -> List[Dice]:
+    """
+    b: boost
+    a: ability
+    p: proficiency
+    s: setback
+    d: difficulty
+    c: challenge
+    :param string: Any string, only listed characters will count.
+    :return: list of instantiated dice objects.
+    """
+    return [Boost() for _ in range(string.count('b'))] + \
+           [Ability() for _ in range(string.count('a'))] + \
+           [Proficiency() for _ in range(string.count('p'))] + \
+           [Setback() for _ in range(string.count('s'))] + \
+           [Difficulty() for _ in range(string.count('d'))] + \
+           [Challenge() for _ in range(string.count('c'))]

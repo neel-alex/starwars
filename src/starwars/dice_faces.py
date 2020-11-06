@@ -1,7 +1,7 @@
 import ast
 from typing import Tuple
 
-from starwars.types import DiceList, DiceDict
+import starwars.types as types
 
 BOOST = """
 0: [A, 2A, S, SA]
@@ -116,7 +116,7 @@ def negative_dice_parse(dice: str) -> str:
                .replace("T", "(0, -1, 0, 0)")
 
 
-def dice_str_to_dict(dice_string: str) -> DiceDict:
+def dice_str_to_dict(dice_string: str) -> types.DiceDict:
     """
     :param dice_string: output of (positive|negative)_dice_parse
     :return: (dict) dict, where keys are 2-tuples where the first entry is an int
@@ -132,7 +132,7 @@ def dice_str_to_dict(dice_string: str) -> DiceDict:
     return ast.literal_eval("{" + dice_string + "}")
 
 
-def get_faces(dice_dict: DiceDict) -> DiceList:
+def get_faces(dice_dict: types.DiceDict) -> types.DiceList:
     """
     :param dice_dict: Output from dice_str_to_dict
     :return: The second entry of each key in the dict as a list. List of 4-tuples.
@@ -140,7 +140,7 @@ def get_faces(dice_dict: DiceDict) -> DiceList:
     return [pair[1] for pair in dice_dict.keys()]
 
 
-def dice_data(dice_string: str) -> Tuple[DiceList, DiceDict]:
+def dice_data(dice_string: str) -> Tuple[types.DiceList, types.DiceDict]:
     """
     Given a dice string (such as the above 4), parse into faces and the adjacency dictionary.
     :param dice_string: Formatted string, where each line is blank or matches
