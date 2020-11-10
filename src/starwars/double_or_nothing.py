@@ -21,8 +21,8 @@ class DoubleOrNothing(MutablePool):
         return self.double(result)
 
     def double(self, result: types.DiceTuple) -> types.DiceTuple:
-        s = 2 if self.success else 1
-        a = 2
+        s = 2 if result[0] > 0 and self.success else 1
+        a = 2 if result[1] > 0 else 1
         t = 2 if self.tf else 1
         d = 2 if self.tf else 1
         return result[0] * s, result[1] * a, result[2] * t, result[3] * d

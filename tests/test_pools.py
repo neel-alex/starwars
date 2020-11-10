@@ -1,6 +1,7 @@
 import starwars.dice as dice
 from starwars.dice_pool import DicePool
 from starwars.mutable_pool import MutablePool
+from starwars.double_or_nothing import DoubleOrNothing
 
 
 def count_dice_in_pool(pool, d_type):
@@ -80,3 +81,10 @@ def test_mutable_pool():
     mdp.result()
 
 
+def test_double_or_nothing():
+    d = DicePool(*dice.string_to_dice_list("aaapdddbb"))
+    dd = DoubleOrNothing(d)
+    res = dd.roll()
+    while res[1] < 1:
+        res = dd.roll()
+    assert 2* (d.result()[1]) == res[1]
