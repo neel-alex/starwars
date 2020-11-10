@@ -12,6 +12,7 @@ class DoubleOrNothing(MutablePool):
     def roll(self):
         if not self.upgraded:
             self.upgrade_difficulty()
+            self.upgraded = True
         result = super().roll()
         return self.double(result)
 
