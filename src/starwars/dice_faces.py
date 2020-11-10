@@ -108,7 +108,7 @@ def negative_dice_parse(dice: str) -> str:
                     (successes, advantages, triumphs, despairs)
     """
     return dice.replace("0", "(0, 0, 0, 0)") \
-               .replace("D", "(-1, 0, 0, 1)") \
+               .replace("D", "(-1, 0, 0, -1)") \
                .replace("2T", "(0, -2, 0, 0)") \
                .replace("FT", "(-1, -1, 0, 0)") \
                .replace("2F", "(-2, 0, 0, 0)") \

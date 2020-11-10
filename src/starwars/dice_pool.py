@@ -70,7 +70,7 @@ class DicePool:
         for _ in range(result[2]):
             final_string += "Triumph!\n"
 
-        for _ in range(result[3]):
+        for _ in range(-result[3]):
             final_string += "Despair!\n"
 
         return final_string

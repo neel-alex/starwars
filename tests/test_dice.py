@@ -16,7 +16,7 @@ THREAT = (0, -1, 0, 0)
 TWO_FAILURE = (-2, 0, 0, 0)
 FAIL_THREAT = (-1, -1, 0, 0)
 TWO_THREAT = (0, -2, 0, 0)
-DESPAIR = (-1, 0, 0, 1)
+DESPAIR = (-1, 0, 0, -1)
 
 
 def _test_dice(dice_class, faces):

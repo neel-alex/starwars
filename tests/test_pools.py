@@ -87,4 +87,4 @@ def test_double_or_nothing():
     res = dd.roll()
     while res[1] < 1:
         res = dd.roll()
-    assert 2* (d.result()[1]) == res[1]
+    assert 2 * (d.result()[1]) == res[1]
