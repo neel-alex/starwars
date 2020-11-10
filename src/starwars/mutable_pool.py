@@ -1,6 +1,7 @@
 import starwars.pool_wrapper as wrapper
 import starwars.dice as dice
 import starwars.types as types
+import starwars.util as util
 
 
 class MutablePool(wrapper.PoolWrapper):
@@ -69,4 +70,4 @@ class MutablePool(wrapper.PoolWrapper):
         :return: sum of only the unrolled dice - use result() if you want the new total.
         """
         results = [d.roll() for d in self.get_pool() if d.result is None]
-        return self.sum_results(results)
+        return util.sum_results(*results)

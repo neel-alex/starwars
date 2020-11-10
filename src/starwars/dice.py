@@ -32,9 +32,17 @@ class Dice(ABC):
     def result(self) -> types.DiceTupleOrNone:
         return self._result
 
+    @result.setter
+    def result(self, result):
+        self._result = result
+
     @property
     def adjacent_faces(self) -> types.DiceListOrNone:
         return self._adjacent_faces
+
+    @adjacent_faces.setter
+    def adjacent_faces(self, adj):
+        self._adjacent_faces = adj
 
     def __str__(self):
         return f"{type(self).__name__}: {'Unrolled' if self._result is None else self._result}"
