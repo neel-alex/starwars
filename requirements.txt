@@ -1,1 +1,2 @@
-# Requirement free at the moment!
+matplotlib
+numpy
