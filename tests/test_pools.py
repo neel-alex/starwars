@@ -1,7 +1,7 @@
 import starwars.dice as dice
 from starwars.dice_pool import DicePool
-from starwars.mutable_pool import MutablePool
-from starwars.double_or_nothing import DoubleOrNothing
+from starwars.wrappers import MutablePool
+from starwars.wrappers import DoubleOrNothing
 
 
 def count_dice_in_pool(pool, d_type):

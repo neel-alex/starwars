@@ -1,6 +1,6 @@
 import itertools
 
-from starwars.mutable_pool import MutablePool
+from starwars.wrappers.mutable_pool import MutablePool
 import starwars.util as util
 
 
@@ -93,25 +93,3 @@ class UnmatchedFortune(MutablePool):
             d.result = util.sum_results(d.result, flip)
             d.adjacent_faces = []
         return fortune[0]
-
-"""
-import starwars.dice as dice
-from starwars.double_or_nothing import DoubleOrNothing
-from starwars.dice_pool import DicePool
-from starwars.mutable_pool import MutablePool
-from starwars.unmatched_fortune import UnmatchedFortune
-d = DicePool(*dice.string_to_dice_list("pppaaccddbbs"))
-uf = UnmatchedFortune(d)
-duf = DoubleOrNothing(uf)
-print("initial:", duf.roll())
-duf.apply_fortune(duf.fortune())
-print("final:", duf.result())
-
-_ = uf.roll()
-l = uf.fortune()
-print(l)
-
-for dd, flip in zip(uf.get_pool(), uf.fortune()):
-    print(dd, "::", flip)
-
-"""

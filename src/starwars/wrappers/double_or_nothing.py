@@ -1,4 +1,4 @@
-from starwars.mutable_pool import MutablePool
+from starwars.wrappers.mutable_pool import MutablePool
 import starwars.types as types
 
 

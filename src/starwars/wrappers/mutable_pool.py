@@ -1,4 +1,4 @@
-import starwars.pool_wrapper as wrapper
+import starwars.wrappers.pool_wrapper as wrapper
 import starwars.dice as dice
 import starwars.types as types
 import starwars.util as util
