@@ -39,6 +39,8 @@ class UnmatchedFortune(MutablePool):
     @staticmethod
     def generate_fortunes(num_dice, flips, result):
         possible_fortunes = []
+        dice_available = [flips[key] for key in flips if flips[key]]
+        num_dice = min(len(dice_available), num_dice)
         for dice_selected in itertools.combinations(flips, num_dice):
             dice_flips = [flips[i] for i in dice_selected]
             for flips_selected in itertools.product(*dice_flips):
