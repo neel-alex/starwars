@@ -8,7 +8,7 @@ import numpy as np
 import starwars.dice as dice
 import starwars.dice_pool as dp
 import starwars.wrappers.unmatched_fortune as uf
-
+import starwars.wrappers.double_or_nothing as dn
 
 
 ##
@@ -26,8 +26,12 @@ d.apply_fortune(fortune)
 
 figure(num=None, figsize=(16, 12), dpi=96, facecolor='w', edgecolor='k')
 
-d = dp.DicePool(*dice.string_to_dice_list("pppadbbbbs"))
+d = dp.DicePool(*dice.string_to_dice_list("pppaccccdbbbbs"))
 d = uf.UnmatchedFortune(d)
+d = dn.DoubleOrNothing(d, success=True)
+fortune_kwargs = {'succeed': True,
+                  'no_despair': False,
+                  'maximize_order': ["Advantage", "Success", "Triumph", "Despair"]}
 n_trials = 1000
 
 default_rolls, fortune_rolls = [], []
@@ -35,8 +39,8 @@ for i in range(n_trials):
     if not i % (n_trials//100):
         print(f"{i//(n_trials//100)}%", end="\r")
     roll = d.roll()
-    default_rolls.append(roll)
-    fortune = d.fortune()
+    default_rolls.append(d.result())
+    fortune = d.fortune(**fortune_kwargs)
     d.apply_fortune(fortune)
     fortune_rolls.append(d.result())
 default_rolls = np.array(default_rolls)
@@ -49,28 +53,25 @@ def plot_rolls(rolls1, rolls2):
     ax2 = axes.flat[1]
 
     ax1.set_title('Default')
-    ax2.set_title('Unmatched Fortune')
+    ax2.set_title('DoN Unmatched Fortune')
 
-    bins1, bins2, full_range = get_ranges(rolls1, rolls2)
-
-    make_plot(ax1, rolls1, bins1, full_range)
-    make_plot(ax2, rolls2, bins2, full_range)
+    bins, full_range = get_ranges(rolls1, rolls2)
+    counts1 = make_plot(ax1, rolls1, bins, full_range)
+    counts2 = make_plot(ax2, rolls2, bins, full_range)
 
     fig.tight_layout()
 
     plt.show()
 
+    return counts1, counts2, full_range
+
 
 def get_ranges(rolls1, rolls2):
     xmax1, xmin1 = np.max(rolls1[:, 0]), np.min(rolls1[:, 0])
     ymax1, ymin1 = np.max(rolls1[:, 1]), np.min(rolls1[:, 1])
-    
-    bins1 = (xmax1 - xmin1, ymax1 - ymin1)
-    
+
     xmax2, xmin2 = np.max(rolls2[:, 0]), np.min(rolls2[:, 0])
     ymax2, ymin2 = np.max(rolls2[:, 1]), np.min(rolls2[:, 1])
-
-    bins2 = (xmax2 - xmin2, ymax2 - ymin2)
 
     xmax = max(xmax1, xmax2)
     ymax = max(ymax1, ymax2)
@@ -79,7 +80,7 @@ def get_ranges(rolls1, rolls2):
 
     full_range = np.array([(xmin, xmax), (ymin, ymax)])
     bin = (xmax - xmin, ymax - ymin)
-    return bin, bin, full_range
+    return bin, full_range
 
 
 def make_plot(ax, rolls, bins, full_range):
@@ -102,13 +103,27 @@ def make_plot(ax, rolls, bins, full_range):
     ax.set_xticks(range(xmin, xmax + 1))
     ax.set_yticks(range(ymin, ymax + 1))
 
+    return counts
 
-plot_rolls(default_rolls, fortune_rolls)
+
+def calculate_advantages(counts, cutoff, adv_range):
+    successful = counts[cutoff:]
+    successful = np.sum(successful, axis=0)
+    
+    advantages = 0
+    for count, adv in zip(successful, range(*adv_range)):
+        advantages += count * adv
+
+    print("Average advantages for unmatched_fortune success rolls:", advantages / sum(successful))
 
 
-"""
-ax1.set_xticks(range(min_x, max_x + 1))
-ax2.set_xticks(range(min_x, max_x + 1))
-ax1.set_yticks(range(min_y, max_y + 1))
-ax2.set_yticks(range(min_y, max_y + 1))
-"""
+
+default_counts, fortune_counts, ranges = plot_rolls(default_rolls, fortune_rolls)
+success_cutoff = -ranges[0][0] + 1
+print(success_cutoff)
+print("Probability of success (default):", np.sum(default_counts[success_cutoff:]) / n_trials)
+print("Probability of success (fortune):", np.sum(fortune_counts[success_cutoff:]) / n_trials)
+
+calculate_advantages(fortune_counts, success_cutoff, ranges[1])
+
+
