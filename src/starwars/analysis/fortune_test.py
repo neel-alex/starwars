@@ -1,4 +1,3 @@
-##
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 from matplotlib.pyplot import figure
@@ -11,40 +10,36 @@ import starwars.wrappers.unmatched_fortune as uf
 import starwars.wrappers.double_or_nothing as dn
 
 
-##
-d = dp.DicePool(*dice.string_to_dice_list("paaccddb"))
-d = uf.UnmatchedFortune(d)
-d.roll()
-fortune = d.fortune(no_despair=True)
-flipped_dice = [dd for i, dd in enumerate(d.get_pool()) if i in fortune[1]]
-for dd, flip in zip(flipped_dice, fortune[2]):
-    # print(dd, "::", flip)
-    pass
-d.apply_fortune(fortune)
-# print(d.result())
-##
+def main():
+    figure(num=None, figsize=(16, 12), dpi=96, facecolor='w', edgecolor='k')
 
-figure(num=None, figsize=(16, 12), dpi=96, facecolor='w', edgecolor='k')
+    d = dp.DicePool(*dice.string_to_dice_list("pppaccdbbbbs"))
+    d = uf.UnmatchedFortune(d)
+    d = dn.DoubleOrNothing(d, success=True, tf=True)
+    fortune_kwargs = {'succeed': False,
+                      'no_despair': False,
+                      'maximize_order': ["Advantage", "Success", "Triumph", "Despair"]}
+    n_trials = 100000
 
-d = dp.DicePool(*dice.string_to_dice_list("pppaccccdbbbbs"))
-d = uf.UnmatchedFortune(d)
-d = dn.DoubleOrNothing(d, success=True)
-fortune_kwargs = {'succeed': True,
-                  'no_despair': False,
-                  'maximize_order': ["Advantage", "Success", "Triumph", "Despair"]}
-n_trials = 1000
+    default_rolls, fortune_rolls = [], []
+    for i in range(n_trials):
+        if not i % (n_trials//100):
+            print(f"{i//(n_trials//100)}%", end="\r")
+        d.roll()
+        default_rolls.append(d.result())
+        fortune = d.fortune(**fortune_kwargs)
+        d.apply_fortune(fortune)
+        fortune_rolls.append(d.result())
+    default_rolls = np.array(default_rolls)
+    fortune_rolls = np.array(fortune_rolls)
 
-default_rolls, fortune_rolls = [], []
-for i in range(n_trials):
-    if not i % (n_trials//100):
-        print(f"{i//(n_trials//100)}%", end="\r")
-    roll = d.roll()
-    default_rolls.append(d.result())
-    fortune = d.fortune(**fortune_kwargs)
-    d.apply_fortune(fortune)
-    fortune_rolls.append(d.result())
-default_rolls = np.array(default_rolls)
-fortune_rolls = np.array(fortune_rolls)
+    default_counts, fortune_counts, ranges = plot_rolls(default_rolls, fortune_rolls)
+    success_cutoff = -ranges[0][0] + 1
+    print(success_cutoff)
+    print("Probability of success (default):", np.sum(default_counts[success_cutoff:]) / n_trials)
+    print("Probability of success (fortune):", np.sum(fortune_counts[success_cutoff:]) / n_trials)
+
+    calculate_advantages(fortune_counts, success_cutoff, ranges[1])
 
 
 def plot_rolls(rolls1, rolls2):
@@ -53,7 +48,7 @@ def plot_rolls(rolls1, rolls2):
     ax2 = axes.flat[1]
 
     ax1.set_title('Default')
-    ax2.set_title('DoN Unmatched Fortune')
+    ax2.set_title('Unmatched Fortune')
 
     bins, full_range = get_ranges(rolls1, rolls2)
     counts1 = make_plot(ax1, rolls1, bins, full_range)
@@ -117,13 +112,5 @@ def calculate_advantages(counts, cutoff, adv_range):
     print("Average advantages for unmatched_fortune success rolls:", advantages / sum(successful))
 
 
-
-default_counts, fortune_counts, ranges = plot_rolls(default_rolls, fortune_rolls)
-success_cutoff = -ranges[0][0] + 1
-print(success_cutoff)
-print("Probability of success (default):", np.sum(default_counts[success_cutoff:]) / n_trials)
-print("Probability of success (fortune):", np.sum(fortune_counts[success_cutoff:]) / n_trials)
-
-calculate_advantages(fortune_counts, success_cutoff, ranges[1])
-
-
+if __name__ == "__main__":
+    main()
