@@ -61,8 +61,8 @@ class UnmatchedFortune(MutablePool):
         if no_despair:
             despair_filtered = [pf for pf in fortunes if pf[0][3] == 0]
             if not despair_filtered:
-                print(f"WARNING: Cannot remove despairs "
-                      f"{'after succeeding' if succeed else ''} on this check!")
+                print(f"WARNING: Cannot remove despairs"
+                      f"{' after succeeding' if succeed else ''} on this check!")
                 fortunes = fortunes
             else:
                 fortunes = despair_filtered

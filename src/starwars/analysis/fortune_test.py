@@ -13,13 +13,13 @@ import starwars.wrappers.double_or_nothing as dn
 def main():
     figure(num=None, figsize=(16, 12), dpi=96, facecolor='w', edgecolor='k')
 
-    d = dp.DicePool(*dice.string_to_dice_list("pppaccdbbbbs"))
+    d = dp.DicePool(*dice.string_to_dice_list("ppaaccddbbss"))
     d = uf.UnmatchedFortune(d)
-    d = dn.DoubleOrNothing(d, success=True, tf=True)
+    # d = dn.DoubleOrNothing(d, success=True, tf=True)
     fortune_kwargs = {'succeed': False,
                       'no_despair': False,
                       'maximize_order': ["Advantage", "Success", "Triumph", "Despair"]}
-    n_trials = 100000
+    n_trials = 100
 
     default_rolls, fortune_rolls = [], []
     for i in range(n_trials):
